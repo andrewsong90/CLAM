@@ -18,7 +18,7 @@ import openslide
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 def compute_w_loader(file_path, output_path, wsi, model,
- 	batch_size = 8, verbose = 0, print_every=20, pretrained=True, 
+ 	batch_size = 8, verbose = 0, print_every=20, pretrained=True,
 	custom_downsample=1, target_patch_size=-1):
 	"""
 	args:
@@ -31,7 +31,7 @@ def compute_w_loader(file_path, output_path, wsi, model,
 		custom_downsample: custom defined downscale factor of image patches
 		target_patch_size: custom defined, rescaled image size before embedding
 	"""
-	dataset = Whole_Slide_Bag_FP(file_path=file_path, wsi=wsi, pretrained=pretrained, 
+	dataset = Whole_Slide_Bag_FP(file_path=file_path, wsi=wsi, pretrained=pretrained,
 		custom_downsample=custom_downsample, target_patch_size=target_patch_size)
 	x, y = dataset[0]
 	kwargs = {'num_workers': 4, 'pin_memory': True} if device.type == "cuda" else {}
@@ -42,18 +42,18 @@ def compute_w_loader(file_path, output_path, wsi, model,
 
 	mode = 'w'
 	for count, (batch, coords) in enumerate(loader):
-		with torch.no_grad():	
+		with torch.no_grad():
 			if count % print_every == 0:
 				print('batch {}/{}, {} files processed'.format(count, len(loader), count * batch_size))
 			batch = batch.to(device, non_blocking=True)
-			
+
 			features = model(batch)
 			features = features.cpu().numpy()
 
 			asset_dict = {'features': features, 'coords': coords}
 			save_hdf5(output_path, asset_dict, attr_dict= None, mode=mode)
 			mode = 'a'
-	
+
 	return output_path
 
 
@@ -78,7 +78,7 @@ if __name__ == '__main__':
 		raise NotImplementedError
 
 	bags_dataset = Dataset_All_Bags(csv_path)
-	
+
 	os.makedirs(args.feat_dir, exist_ok=True)
 	os.makedirs(os.path.join(args.feat_dir, 'pt_files'), exist_ok=True)
 	os.makedirs(os.path.join(args.feat_dir, 'h5_files'), exist_ok=True)
@@ -87,11 +87,11 @@ if __name__ == '__main__':
 	print('loading model checkpoint')
 	model = resnet50_baseline(pretrained=True)
 	model = model.to(device)
-	
+
 	# print_network(model)
 	if torch.cuda.device_count() > 1:
 		model = nn.DataParallel(model)
-		
+
 	model.eval()
 	total = len(bags_dataset)
 
@@ -103,15 +103,18 @@ if __name__ == '__main__':
 		print('\nprogress: {}/{}'.format(bag_candidate_idx, total))
 		print(slide_id)
 
-		if not args.no_auto_skip and slide_id+'.pt' in dest_files:
+		if (not args.no_auto_skip and slide_id+'.pt' in dest_files) or (not os.path.exists(h5_file_path)):
 			print('skipped {}'.format(slide_id))
-			continue 
+            with open(os.path.join(args.feat_dir, 'h5_files','outlier.txt'), a) as f:
+                f.write(slide_id)
+			continue
+
 
 		output_path = os.path.join(args.feat_dir, 'h5_files', bag_name)
 		time_start = time.time()
 		wsi = openslide.open_slide(slide_file_path)
-		output_file_path = compute_w_loader(h5_file_path, output_path, wsi, 
-		model = model, batch_size = args.batch_size, verbose = 1, print_every = 20, 
+		output_file_path = compute_w_loader(h5_file_path, output_path, wsi,
+		model = model, batch_size = args.batch_size, verbose = 1, print_every = 20,
 		custom_downsample=args.custom_downsample, target_patch_size=args.target_patch_size)
 		time_elapsed = time.time() - time_start
 		print('\ncomputing features for {} took {} s'.format(output_file_path, time_elapsed))
@@ -123,6 +126,3 @@ if __name__ == '__main__':
 		features = torch.from_numpy(features)
 		bag_base, _ = os.path.splitext(bag_name)
 		torch.save(features, os.path.join(args.feat_dir, 'pt_files', bag_base+'.pt'))
-
-
-
