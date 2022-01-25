@@ -103,13 +103,17 @@ if __name__ == '__main__':
 		print('\nprogress: {}/{}'.format(bag_candidate_idx, total))
 		print(slide_id)
 
-		if (not args.no_auto_skip and slide_id+'.pt' in dest_files) or (not os.path.exists(h5_file_path)):
+		if not args.no_auto_skip and slide_id+'.pt' in dest_files:
 
-			print('skipped {}'.format(slide_id))
-
-			with open(os.path.join(args.feat_dir, 'h5_files','outlier.txt'), 'a') as f:
-				f.write(slide_id)
+			print('skipped {} - Already exists'.format(slide_id))
 			continue
+
+		if not os.path.exists(h5_file_path):
+			print('skipped {} - Patch does not exist'.format(slide_id))
+			with open(os.path.join(args.feat_dir, 'h5_files','outlier.txt'), 'a') as f:
+				f.write(slide_id+'\n')
+			continue
+
 
 
 		output_path = os.path.join(args.feat_dir, 'h5_files', bag_name)
