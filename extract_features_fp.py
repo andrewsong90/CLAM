@@ -107,7 +107,7 @@ if __name__ == '__main__':
 
 			print('skipped {}'.format(slide_id))
 
-			with open(os.path.join(args.feat_dir, 'h5_files','outlier.txt'), a) as f:
+			with open(os.path.join(args.feat_dir, 'h5_files','outlier.txt'), 'a') as f:
 				f.write(slide_id)
 			continue
 
