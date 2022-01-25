@@ -18,7 +18,7 @@ import openslide
 device = torch.device('cuda') if torch.cuda.is_available() else torch.device('cpu')
 
 def compute_w_loader(file_path, output_path, wsi, model,
- 	batch_size = 8, verbose = 0, print_every=20, pretrained=True,
+	batch_size = 8, verbose = 0, print_every=20, pretrained=True,
 	custom_downsample=1, target_patch_size=-1):
 	"""
 	args:
@@ -104,9 +104,11 @@ if __name__ == '__main__':
 		print(slide_id)
 
 		if (not args.no_auto_skip and slide_id+'.pt' in dest_files) or (not os.path.exists(h5_file_path)):
+
 			print('skipped {}'.format(slide_id))
-            with open(os.path.join(args.feat_dir, 'h5_files','outlier.txt'), a) as f:
-                f.write(slide_id)
+
+			with open(os.path.join(args.feat_dir, 'h5_files','outlier.txt'), a) as f:
+				f.write(slide_id)
 			continue
 
 
