@@ -60,7 +60,7 @@ elif args.task =='task_4_kidney_subtyping':
                             shuffle = False,
                             seed = args.seed,
                             print_info = True,
-                            label_dict = {'KIRP':0, 'KIRC':1, 'KIRH':2},
+                            label_dict = {'KIRP':0, 'KIRC':1, 'KICH':2},
                             patient_strat= True,
                             patient_voting='maj',
                             ignore=[])
