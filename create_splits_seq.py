@@ -56,7 +56,7 @@ elif args.task =='task_3_lung_subtyping':
 elif args.task =='task_4_kidney_subtyping':
     args.n_classes=3
 
-    dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/kidney_subtyping.csv',
+    dataset = Generic_WSI_Classification_Dataset(csv_path = 'dataset_csv/kidney_subtyping.csv',
                             shuffle = False,
                             seed = args.seed,
                             print_info = True,
