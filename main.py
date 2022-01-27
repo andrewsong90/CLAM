@@ -180,7 +180,7 @@ elif args.task =='task_3_lung_subtyping':
     args.n_classes=2
 
     dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/lung_subtyping.csv',
-                            data_dir = os.path.join(args.data_root_dir, 'pt_files'),
+                            data_dir = os.path.join(args.data_root_dir),
                             shuffle = False,
                             seed = args.seed,
                             print_info = True,
