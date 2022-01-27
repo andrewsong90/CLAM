@@ -53,6 +53,18 @@ elif args.task =='task_3_lung_subtyping':
                             patient_voting='maj',
                             ignore=[])
 
+elif args.task =='task_4_kidney_subtyping':
+    args.n_classes=3
+
+    dataset = Generic_MIL_Dataset(csv_path = 'dataset_csv/kidney_subtyping.csv',
+                            shuffle = False,
+                            seed = args.seed,
+                            print_info = True,
+                            label_dict = {'KIRP':0, 'KIRC':1, , 'KIRH':1},
+                            patient_strat= True,
+                            patient_voting='maj',
+                            ignore=[])
+
 else:
     raise NotImplementedError
 
